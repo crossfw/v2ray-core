@@ -1,6 +1,8 @@
 package speed
 
 import (
+	"context"
+	"fmt"
 	"golang.org/x/time/rate"
 	"time"
 	"v2ray.com/core/common"
@@ -22,12 +24,13 @@ func RateWriter(writer buf.Writer, limiter *rate.Limiter) buf.Writer {
 
 // WriteMultiBuffer writes a MultiBuffer into underlying writer.
 func (w *bucket) WriteMultiBuffer(mb buf.MultiBuffer) error {
-	//ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
-	_ = w.limiter.AllowN(time.Now(), int(mb.Len())/4)
-	//if err != nil {
-	//	_ = newError("waiting to get a new ticket").AtDebug()
-	//	fmt.Println("waiting to get a new ticket")
-	//}
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
+	err := w.limiter.WaitN(ctx, int(mb.Len())/4)
+	if err != nil {
+		_ = newError("waiting to get a new ticket").AtDebug()
+		fmt.Println("waiting to get a new ticket")
+		return err
+	}
 
 	return w.writer.WriteMultiBuffer(mb)
 }
