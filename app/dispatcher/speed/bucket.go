@@ -29,7 +29,6 @@ func (w *bucket) WriteMultiBuffer(mb buf.MultiBuffer) error {
 	if err != nil {
 		_ = newError("waiting to get a new ticket").AtDebug()
 		fmt.Println("waiting to get a new ticket")
-		return err
 	}
 
 	return w.writer.WriteMultiBuffer(mb)
