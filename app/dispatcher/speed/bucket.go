@@ -24,21 +24,42 @@ func RateWriter(writer buf.Writer, limiter *rate.Limiter) buf.Writer {
 // WriteMultiBuffer writes a MultiBuffer into underlying writer.
 func (w *bucket) WriteMultiBuffer(mb buf.MultiBuffer) error {
 	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
-	for i := 0; i < 10; i++ {
-		err := w.limiter.WaitN(ctx, int(mb.Len())/4)
-		if err != nil {
-			err = newError("waiting to get a new ticket").AtDebug()
-			// close when waiting 1s
-			if i == 9 {
-				w.Close()
+
+	mbLen := int(mb.Len()) / 4
+
+	err := w.writer.WriteMultiBuffer(mb)
+	if err != nil {
+		return err
+	}
+
+	if mbLen > w.limiter.Burst() {
+		for {
+			err := w.limiter.WaitN(ctx, int(mb.Len())/4)
+			if err != nil {
 				return err
 			}
-		} else {
-			break
+			mbLen -= w.limiter.Burst()
+			if mbLen <= w.limiter.Burst() {
+				break
+			}
 		}
 	}
 
-	return w.writer.WriteMultiBuffer(mb)
+	//for i := 0; i < 10; i++ {
+	//	err := w.limiter.WaitN(ctx, int(mb.Len())/4)
+	//	if err != nil {
+	//		err = newError("waiting to get a new ticket").AtDebug()
+	//		// close when waiting 1s
+	//		if i == 9 {
+	//			w.Close()
+	//			return err
+	//		}
+	//	} else {
+	//		break
+	//	}
+	//}
+
+	return w.limiter.WaitN(ctx, int(mb.Len())/4)
 }
 
 // Close WriteBuffer
