@@ -23,7 +23,7 @@ func RateWriter(writer buf.Writer, limiter *rate.Limiter) buf.Writer {
 
 // WriteMultiBuffer writes a MultiBuffer into underlying writer.
 func (w *bucket) WriteMultiBuffer(mb buf.MultiBuffer) error {
-	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(500*time.Millisecond))
 
 	mbLen := int(mb.Len()) / 4
 
