@@ -92,10 +92,11 @@ func (r *cachedReader) Interrupt() {
 
 // DefaultDispatcher is a default implementation of Dispatcher.
 type DefaultDispatcher struct {
-	ohm    outbound.Manager
-	router routing.Router
-	policy policy.Manager
-	stats  stats.Manager
+	ohm     outbound.Manager
+	router  routing.Router
+	policy  policy.Manager
+	stats   stats.Manager
+	Limiter *speed.BucketHub
 }
 
 func init() {
@@ -116,6 +117,7 @@ func (d *DefaultDispatcher) Init(config *Config, om outbound.Manager, router rou
 	d.router = router
 	d.policy = pm
 	d.stats = sm
+	d.Limiter = speed.NewBucketHub()
 	return nil
 }
 
@@ -159,10 +161,10 @@ func (d *DefaultDispatcher) getLink(ctx context.Context) (*transport.Link, *tran
 		if p.Speed.Inbound != 0 || p.Speed.Outbound != 0 {
 			//bm := speed.NewBucketHub()
 			if p.Speed.Inbound != 0 {
-				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, user.Limiter.GetUserBucket(user, p.Speed.Inbound))
+				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, d.Limiter.GetUserBucket(user, p.Speed.Inbound))
 			}
 			if p.Speed.Outbound != 0 {
-				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, user.Limiter.GetUserBucket(user, p.Speed.Outbound))
+				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, d.Limiter.GetUserBucket(user, p.Speed.Outbound))
 			}
 		}
 

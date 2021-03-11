@@ -1,7 +1,5 @@
 package protocol
 
-import "v2ray.com/core/app/dispatcher/speed"
-
 func (u *User) GetTypedAccount() (Account, error) {
 	if u.GetAccount() == nil {
 		return nil, newError("Account missing").AtWarning()
@@ -29,7 +27,6 @@ func (u *User) ToMemoryUser() (*MemoryUser, error) {
 		Account: account,
 		Email:   u.Email,
 		Level:   u.Level,
-		Limiter: speed.NewBucketHub(),
 	}, nil
 }
 
@@ -39,5 +36,4 @@ type MemoryUser struct {
 	Account Account
 	Email   string
 	Level   uint32
-	Limiter *speed.BucketHub
 }
