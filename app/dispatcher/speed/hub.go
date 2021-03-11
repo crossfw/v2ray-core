@@ -1,6 +1,7 @@
 package speed
 
 import (
+	"fmt"
 	"golang.org/x/time/rate"
 	"sync"
 	"v2ray.com/core/common/protocol"
@@ -24,7 +25,8 @@ func (b *BucketHub) GetUserBucket(u *protocol.MemoryUser, speed uint64) *rate.Li
 	}
 
 	// 4 byte use one ticket, bursts 1M
-	bucket := rate.NewLimiter(rate.Limit(speed / 4), 1024 * 1000)
+	bucket := rate.NewLimiter(rate.Limit(speed/4), 1024*1000)
+	fmt.Println("create bucket for ", u.Email)
 	b.Lock()
 	defer b.Unlock()
 	b.Users[u.Email] = bucket
