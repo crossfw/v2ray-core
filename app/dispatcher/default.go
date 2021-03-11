@@ -6,6 +6,7 @@ package dispatcher
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -118,6 +119,7 @@ func (d *DefaultDispatcher) Init(config *Config, om outbound.Manager, router rou
 	d.policy = pm
 	d.stats = sm
 	d.Limiter = speed.NewBucketHub()
+	fmt.Println("create a dispatcher")
 	return nil
 }
 
