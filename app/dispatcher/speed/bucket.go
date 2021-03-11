@@ -29,7 +29,7 @@ func (w *bucket) WriteMultiBuffer(mb buf.MultiBuffer) error {
 		if err != nil {
 			err = newError("waiting to get a new ticket").AtDebug()
 			// close when waiting 1s
-			if i == 10 {
+			if i == 9 {
 				w.Close()
 				return err
 			}
