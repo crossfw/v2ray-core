@@ -159,14 +159,16 @@ func (d *DefaultDispatcher) getLink(ctx context.Context) (*transport.Link, *tran
 
 	if user != nil && len(user.Email) > 0 {
 		p := d.policy.ForLevel(user.Level)
-
+		fmt.Println("create a link")
 		if p.Speed.Inbound != 0 || p.Speed.Outbound != 0 {
 			//bm := speed.NewBucketHub()
 			if p.Speed.Inbound != 0 {
 				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, d.Limiter.GetUserBucket(user, p.Speed.Inbound))
+				fmt.Printf("user IN bucket %+v", d.Limiter.GetUserBucket(user, p.Speed.Inbound))
 			}
 			if p.Speed.Outbound != 0 {
 				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, d.Limiter.GetUserBucket(user, p.Speed.Outbound))
+				fmt.Printf("user OUT bucket %+v", d.Limiter.GetUserBucket(user, p.Speed.Outbound))
 			}
 		}
 
