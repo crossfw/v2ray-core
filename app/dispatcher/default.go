@@ -157,12 +157,12 @@ func (d *DefaultDispatcher) getLink(ctx context.Context) (*transport.Link, *tran
 		p := d.policy.ForLevel(user.Level)
 
 		if p.Speed.Inbound != 0 || p.Speed.Outbound != 0 {
-			bm := speed.NewBucketHub()
+			//bm := speed.NewBucketHub()
 			if p.Speed.Inbound != 0 {
-				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, bm.GetUserBucket(user, p.Speed.Inbound))
+				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, user.Limiter.GetUserBucket(user, p.Speed.Inbound))
 			}
 			if p.Speed.Outbound != 0 {
-				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, bm.GetUserBucket(user, p.Speed.Outbound))
+				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, user.Limiter.GetUserBucket(user, p.Speed.Outbound))
 			}
 		}
 
