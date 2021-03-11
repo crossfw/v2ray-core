@@ -121,7 +121,6 @@ func (d *DefaultDispatcher) Init(config *Config, om outbound.Manager, router rou
 	d.stats = sm
 	d.InLimiter = speed.NewBucketHub()
 	d.OutLimiter = speed.NewBucketHub()
-	fmt.Println("create a dispatcher")
 	return nil
 }
 
@@ -163,13 +162,13 @@ func (d *DefaultDispatcher) getLink(ctx context.Context) (*transport.Link, *tran
 		p := d.policy.ForLevel(user.Level)
 		fmt.Println("create a link")
 		if p.Speed.Inbound != 0 || p.Speed.Outbound != 0 {
-			//bm := speed.NewBucketHub()
+			bm := speed.NewBucketHub()
 			if p.Speed.Inbound != 0 {
-				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, d.InLimiter.GetUserBucket(user, p.Speed.Inbound))
+				inboundLink.Writer = speed.RateWriter(inboundLink.Writer, bm.GetUserBucket(user, p.Speed.Inbound))
 				fmt.Printf("user IN bucket %+v \n", *d.InLimiter.GetUserBucket(user, p.Speed.Inbound))
 			}
 			if p.Speed.Outbound != 0 {
-				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, d.OutLimiter.GetUserBucket(user, p.Speed.Outbound))
+				outboundLink.Writer = speed.RateWriter(outboundLink.Writer, bm.GetUserBucket(user, p.Speed.Outbound))
 				fmt.Printf("user OUT bucket %+v \n", *d.OutLimiter.GetUserBucket(user, p.Speed.Outbound))
 			}
 		}
